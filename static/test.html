@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/socket.io-client@2.3.0/dist/socket.io.slim.js"></script>
+</head>
+<body>
+    <center>
+        <div class="User-Data-Wrapper">
+            <p>Yor nickname:</p>
+            <input type="text" id="nickname">
+            <p>Your message:</p>
+            <input type="text" id="message">
+        </div>
+        <br>
+        <button id="button">Send!!</button>
+        <div class="chat">
+            <p id="chat-data"></p>
+        </div>
+    </center>
+    <script>
+        ioClient = io.connect('http://localhost:3000')
+        ioClient.on('connect', socket => {
+          ioClient.send("Connected!")
+          ioClient.on('messageToClient', msg => updateChat(msg))
+        })
+
+        var button = document.getElementById("button");
+
+        button.onclick = () => {
+            var nickname = document.getElementById("nickname").value;
+            var message = document.getElementById("message").value;
+
+            ioClient.emit(
+                'messageToServer', {
+                "nickname": nickname,
+                "message": message
+                });
+        }
+
+        function updateChat(text) {
+            console.log(text);
+            var chatText = document.getElementById("chat-data").innerHTML;
+            chatText += `Username: ${text.nickname}: ${text.message}<br>`
+            document.getElementById("chat-data").innerHTML  = chatText;
+        }
+      </script>
+</body>
+</html>
